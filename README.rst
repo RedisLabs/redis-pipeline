@@ -8,7 +8,8 @@ Usage example
 
 .. code-block:: python
 
-    r = redis_parser.RedisPipeline(pipeline_depth = 3)
+    import redispipeline
+    r = redispipeline.RedisPipeline(pipeline_depth = 3)
     r.set('x',1)
     r.get('x')
     r.set('y',2)
