@@ -5,7 +5,9 @@ Non blocking pipelined python client for redis.
 
 Usage example
 -------------
+
 .. code-block:: python
+
     r = redis_parser.RedisPipeline(pipeline_depth = 3)
     r.set('x',1)
     r.get('x')
