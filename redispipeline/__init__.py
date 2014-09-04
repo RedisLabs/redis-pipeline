@@ -1,6 +1,7 @@
 from redispipeline import (
     RedisPipeline, 
     RedisParser,
+    RedisNil,
     RedisPipelineException,
     AuthException,
     DisconnectedException,

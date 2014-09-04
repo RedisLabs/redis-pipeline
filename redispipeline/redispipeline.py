@@ -16,6 +16,9 @@ class ErrorResponse(RedisPipelineException):
     def __init__(self, response):
         super(ErrorResponse, self).__init__(response)
 
+class RedisNil(object):
+    pass
+
 class RedisParser(object):
     def __init__(self, objectCallback=None, objectCallbackPriv=None):
         # Create request/response queue
@@ -124,6 +127,9 @@ class RedisParser(object):
                 try:
                     self.bulkLen = int(self.parsedBuf)
                     self.parsedBuf = ''
+                    if self.bulkLen < 0: # Handle redis nil bulk reply
+                        self.finalizeResponse(RedisNil())
+                        return True
                     self.handleInputState = self.readingBulkContent
                 except ValueError:
                     self.err = 'Invalid bulk len'
@@ -171,8 +177,10 @@ class RedisParser(object):
                     self.multiBulkParts = []
                     self.parsedBuf = ''
                     self.handleInputState = self.waitingForReply
-                else:
+                elif multiBulkCount == 0:
                     self.finalizeResponse([])
+                else: # Handle redis nil multi bulk reply
+                    self.finalizeResponse(RedisNil())
                 return True
             if c != '\r':
                 self.parsedBuf += c

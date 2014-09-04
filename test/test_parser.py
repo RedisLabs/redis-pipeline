@@ -7,7 +7,7 @@ class TestParser(unittest.TestCase):
 
     def parser_callback(self, priv):
         self.temp = priv
-        
+
     def test_callback(self):
         parser = redispipeline.RedisParser(objectCallback=self.parser_callback, objectCallbackPriv=99)
         parser.processInput('+DUMMY STATUS')
@@ -20,15 +20,25 @@ class TestParser(unittest.TestCase):
         parser = redispipeline.RedisParser()
         parser.processInput('+DUMMY STATUS\r\n')
         self.assertEqual(parser.getObject(), 'DUMMY STATUS')
-        
+
     def test_nested_multi_bulk(self):
         parser = redispipeline.RedisParser()
         parser.processInput('*2\r\n*2\r\n$6\r\nbadger\r\n:99\r\n*0\r\n')
         self.assertEqual(parser.getObject(), [['badger',99],[]])
-        
+
+    def test_nil_bulk(self):
+        parser = redispipeline.RedisParser()
+        parser.processInput("$-1\r\n")
+        self.assertIsInstance(parser.getObject(), redispipeline.RedisNil)
+
+    def test_nil_multi_bulk(self):
+        parser = redispipeline.RedisParser()
+        parser.processInput("*-1\r\n")
+        self.assertIsInstance(parser.getObject(), redispipeline.RedisNil)
+
     # TODO: lots of other tests!!        
 
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TestParser)
-    
+
